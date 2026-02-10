@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My Orders{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/orders.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="orders-container">
+        <h1 class="orders-title">{{ user.username|capfirst }} Orders</h1>
+        {% if messages %}
+          {% for message in messages %}
+            <div class="orders-alert">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+        <!-- ORDERS LIST -->
+        <div class="orders-list">
+            {% for order in orders %}
+                <div class="order-book">
+                    <div class="order-card">
+                        <!-- ORDER HEADER -->
+                        <div class="order-header">
+                            <div>
+                                <span class="label">ORDER #</span>
+                                <span>{{ order.id }}</span>
+                            </div>
+                            <div>
+                                <span class="label">ORDER DATE</span>
+                                <span>{{ order.created_at|date:"M d, Y" }}</span>
+                            </div>
+                            <div>
+                                <span class="label">TOTAL</span>
+                                <span class="total">TZS {{ order.total }}</span>
+                            </div>
+                        </div>
+                        <!-- ORDER ITEMS -->
+                        <div class="order-body">
+                            {% for item in order.items.all %}
+                                <div class="order-item">
+                                    <div class="item-info">
+                                        <h4>{{ item.product.name }}</h4>
+                                        <p>Quantity: {{ item.quantity }}</p>
+                                        <p class="item-status">{{ item.status }}</p>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <!-- DELIVERY STATUS -->
+                        <div class="order-footer">
+                          {% comment %} 
+                              <strong>Delivery:</strong>
+                              <span>{{ order.delivery_status }}</span> 
+                          {% endcomment %}
+                          <div>
+                              <span class="label">STATUS</span>
+                              <span class="status">{{ order.status }}</span>
+                          </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+            <div class="empty-orders">
+                <h2>You have no orders yet</h2>
+                <a href="{% url 'bluesoko:product_list' %}" class="shop-btn">Start Shopping</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

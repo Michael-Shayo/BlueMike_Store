@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My Cart{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/cart.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="cart-container">
+        <h1 class="cart-title">Shopping Cart</h1>
+        {% if messages %}
+          {% for message in messages %}
+            <div class="cart-alert">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+        {% if cart %}
+            <div class="cart-layout">
+              <!-- LEFT: CART ITEMS -->
+              <div class="cart-items">
+                  {% for id, item in cart.items %}
+                      <div class="cart-item">
+                          <div class="cart-image">
+                              {% if item.image %}
+                                <img src="{{ item.image }}" alt="{{ item.name }}">
+                              {% else %}
+                                <div class="no-image">No Image</div>
+                              {% endif %}
+                          </div>
+                          <div class="cart-details">
+                              <h3>{{ item.name }}</h3>
+                              <p class="price">TZS {{ item.price }}</p>
+                              <p class="quantity">Qty: {{ item.quantity }}</p>
+                              <a href="{% url 'bluesoko:remove_from_cart' id %}" class="remove-link">
+                                Remove
+                              </a>
+                          </div>
+                          <div class="cart-subtotal">TZS {{ item.price|floatformat:0 }}</div>
+                      </div>
+                  {% endfor %}
+              </div>
+              <!-- RIGHT: SUMMARY -->
+              <div class="cart-summary">
+                  <h3>Order Summary</h3>
+                  <div class="summary-row">
+                      <span>Total</span>
+                      <strong>TZS {{ total }}</strong>
+                  </div>
+                  <a href="{% url 'bluesoko:checkout' %}" class="checkout-btn">
+                    Proceed to Checkout
+                  </a>
+                  <a href="{% url 'bluesoko:product_list' %}" class="continue-link">
+                    Continue Shopping
+                  </a>
+              </div>
+            </div>
+        {% else %}
+            <div class="empty-cart">
+                <h2>Your cart is empty</h2>
+                <a href="{% url 'bluesoko:product_list' %}" class="checkout-btn">
+                  Browse Market
+                </a>
+            </div>
+        {% endif %}
+    </div>
+    <script>
+        console.log("Cart page loaded");
+    </script>
+{% endblock %}

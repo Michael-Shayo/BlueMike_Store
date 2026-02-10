@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    {{ product.name }} | Buy Online in Tanzania – BlueSoko
+{% endblock %}
+
+{% block meta_description %}
+    Buy {{ product.name }} at {{ product.price }} TZS. Available from {{ product.shop.name }}. Fast delivery.
+{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/product_detail.css' %}">
+  {% endblock %}
+
+{% block content %}
+    <div class="container">
+        {% if messages %}
+          {% for message in messages %}
+          <div class="message-alert">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+        <div class="product-wrapper">
+              <div class="image-grid {% if product.images.count <= 1 %}single-image{% endif %}">
+                  {% if product.images.exists %}
+                      {% for img in product.images.all %}
+                        <img src="{{ img.image.url }}" alt="{{ product.name }}" onclick="openImage(this.src)">
+                      {% endfor %}
+                  {% else %}
+                      <div class="no-image"> No product image available </div>
+                  {% endif %}
+              </div>
+              <!-- PRODUCT INFO -->
+              <div class="product-info">
+                <h1>{{ product.name }}</h1>
+                <div class="price">{{ product.price }} TZS</div>
+                <div class="shop">
+                  Sold by:
+                  <a href="{% url 'bluesoko:shop_detail' product.shop.slug %}">{{ product.shop.name }}</a>
+                </div>
+                <div class="description">
+                  {{ product.description|default:"No description provided." }}
+                </div>
+                <div class="actions">
+                    <form method="post" action="{% url 'bluesoko:add_to_cart' product.slug %}">
+                      {% csrf_token %}
+                      <button class="btn-cart">🛒 Add to Cart</button>
+                    </form>
+                    {% if product.seller.phone %}
+                      <a
+                        href="https://wa.me/{{ product.seller.phone }}?text=Hello%20I%20am%20interested%20in%20{{ product.name }}"
+                        target="_blank"
+                        class="btn-whatsapp">
+                        📲 Chat on WhatsApp
+                      </a>
+                    {% endif %}
+                </div>
+                <br><br>
+              </div>
+        </div>
+    </div>
+    <!-- IMAGE PREVIEW MODAL -->
+    {% comment %} 
+        <div class="image-modal" id="imageModal" onclick="closeImage()">
+            <span class="close">&times;</span>
+            <img id="modalImage">
+        </div> 
+    {% endcomment %}
+        <!-- IMAGE PREVIEW MODAL -->
+    <div class="image-modal" id="imageModal">
+        <button class="arrow left" onclick="prevModalImage(event)">&#10094;</button>
+        <img id="modalImage">
+        <button class="arrow right" onclick="nextModalImage(event)">&#10095;</button>
+        <span class="close" onclick="closeImage()">&times;</span>
+    </div>
+    {% comment %} 
+        <script>
+        function openImage(src) {
+            const modal = document.getElementById("imageModal");
+            const modalImg = document.getElementById("modalImage");
+            modalImg.src = src;
+            modal.classList.add("active");
+        }
+        function closeImage() {
+            document.getElementById("imageModal").classList.remove("active");
+        }
+        </script> 
+    {% endcomment %}
+    <script>
+            let modalImages = [];
+            let currentModalIndex = 0;
+
+            function openImage(src) {
+                const modal = document.getElementById("imageModal");
+                const modalImg = document.getElementById("modalImage");
+
+                // get all product images
+                modalImages = Array.from(document.querySelectorAll('.image-grid img')).map(img => img.src);
+                currentModalIndex = modalImages.indexOf(src);
+
+                modalImg.src = src;
+                modal.classList.add("active");
+            }
+
+            function closeImage() {
+                document.getElementById("imageModal").classList.remove("active");
+            }
+
+            // Navigate to next image
+            function nextModalImage(event) {
+                event.stopPropagation(); // prevent closing modal
+                if (modalImages.length <= 1) return;
+
+                currentModalIndex = (currentModalIndex + 1) % modalImages.length;
+                document.getElementById("modalImage").src = modalImages[currentModalIndex];
+            }
+
+            // Navigate to previous image
+            function prevModalImage(event) {
+                event.stopPropagation(); // prevent closing modal
+                if (modalImages.length <= 1) return;
+
+                currentModalIndex = (currentModalIndex - 1 + modalImages.length) % modalImages.length;
+                document.getElementById("modalImage").src = modalImages[currentModalIndex];
+            }
+
+            // Optional: Auto-slide every 30s in modal
+            setInterval(() => {
+                if (modalImages.length > 1 && document.getElementById("imageModal").classList.contains("active")) {
+                    nextModalImage(new Event('click'));
+                }
+            }, 15000);
+    </script>
+{% endblock %}

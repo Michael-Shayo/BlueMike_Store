@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        {% if status == "pending" %}
+            {{ shop.name }} | Pending
+        {% elif status == "not_found" %}
+            Shop not found
+        {% endif %}
+    </title>
+    <link rel="stylesheet" href="{% static 'css/shop_status.css' %}">
+</head>
+<body>
+    {% if messages %}
+        {% for message in messages %}
+            <p class="message">{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+    <div class="status-wrapper">
+        {% if status == "pending" %}
+            <div class="status-icon">⏳</div>
+            <h2 class="status-title">Shop Not Available Yet</h2>
+            <p class="status-text">
+                The shop <span class="highlight">{{ shop.name }}</span> is currently awaiting approval.
+            </p>
+            <p class="status-text">Please check back later.</p>
+            <a href="/" class="btn-home">Go Back Home</a>
+            {% if owner_view %}
+                <div class="info-box">
+                    Your shop is pending admin approval.
+                </div>
+            {% endif %}
+        {% elif status == "not_found" %}
+            <div class="status-icon">❌</div>
+            <h2 class="status-title">Shop Not Found</h2>
+            <p class="status-text">
+                Sorry, the shop you are looking for does not exist.
+            </p>
+            <a href="/" class="btn-home">Go Back Home</a>
+            <div class="info-box">
+                This Url is not available.
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

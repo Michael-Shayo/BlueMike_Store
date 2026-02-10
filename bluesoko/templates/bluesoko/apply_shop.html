@@ -1,0 +1,55 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Apply for Shop</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="robots" content="noindex, nofollow">
+        <link rel="stylesheet" href="{% static 'css/apply_shop.css' %}">
+    </head>
+    <body>
+        <div class="form-container">
+            <h1 class="form-title">Apply for a Shop</h1>
+            <p class="form-subtitle">Create your business presence on BlueSoko</p>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+            <form method="POST">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>Shop Name</label>
+                    <input type="text" name="shop_name" placeholder="Enter shop name">
+                </div>
+                <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" name="location" placeholder="City / Area">
+                </div>
+                <!-- Auto-detected -->
+                <input type="hidden" name="latitude" id="latitude">
+                <input type="hidden" name="longitude" id="longitude">
+                <div class="form-group">
+                    <label>Business Phone</label>
+                    <input type="text" name="phone" placeholder="+255..." >
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" placeholder="Tell customers about your shop"></textarea>
+                </div>
+                <button type="submit" class="submit-btn">
+                    Submit Application
+                </button>
+            </form>
+        </div>
+        <script>
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    document.getElementById("latitude").value = position.coords.latitude;
+                    document.getElementById("longitude").value = position.coords.longitude;
+                });
+            }
+        </script>
+    </body>
+</html>

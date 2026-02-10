@@ -1,0 +1,132 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>{{ shop.name }} - Seller Dashboard | BlueSoko</title>
+        <meta name="description" content="Manage your products, orders, and sales performance on the BlueSoko Seller Dashboard.">
+        <meta name="keywords" content="seller dashboard, manage products, online selling, BlueSoko seller">
+        <meta name="author" content="BlueSoko">
+        <!-- Open Graph (for social sharing) -->
+        <meta property="og:title" content="Seller Dashboard | BlueSoko">
+        <meta property="og:description" content="Access your seller tools, manage orders, and grow your business on BlueSoko.">
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="{{ request.build_absolute_uri }}">
+        <meta property="og:image" content="{% static 'images/bluemike_logo.png' %}">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="{% static 'css/shop_dashboard.css' %}">
+        <link rel="icon" href="{% static 'images/bluemike_logo.png' %}">
+    </head>
+    <body>
+        {% include "includes/navbar.html" %}
+        <div class="dashboard-container">
+            <div class="dashboard-header">
+                <h1>{{ shop.name |capfirst }} <small>on BlueSoko</small></h1>
+                    {% if shop.is_approved %}
+                        <a href="{% url 'bluesoko:add_product' %}" class="add-product-btn">➕ Add Product</a>
+                    {% endif %}
+            </div>
+            <div class="message-board">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            <div class="dashboard-top">
+                <h3>Your Products</h3>
+                {% if shop.is_approved %}
+                    <a href="{% url 'bluesoko:seller_orders' %}">Selling Orders</a>
+                {% endif %}
+            </div>
+            <hr>
+            <section class="top">
+                {% if not shop.is_approved %}
+                    <div class="alert">
+                        Your shop is under review. You can add products once approved.
+                    </div>
+                {% endif %}
+                <h2>Manage Your Store</h2>
+                <p>View orders, manage products, and track your sales performance.</p>
+            </section>
+            {% if products %}
+                <div class="products-section">
+                    {% for product in products %}
+                        <div class="product-card"
+                            onclick="openProductImages({{ product.id }})"
+                            data-images='[
+                                {% for img in product.images.all %}
+                                    "{{ img.image.url }}"{% if not forloop.last %},{% endif %}
+                                {% endfor %}
+                            ]'>
+                            <div class="product-name">{{ product.name|capfirst }}</div>
+                            <div class="product-price">{{ product.price|floatformat:0 }} TZS</div>
+                            <div class="product-stock">Stock: {{ product.stock }}</div>
+
+                            <div class="product-info">
+                                <div class="product-status">
+                                    {% if product.is_active %}Active{% else %}Inactive{% endif %}
+                                </div>
+                                {% if product.negotiable %}
+                                    <span class="negotiable">Negotiable</span>
+                                {% else %}
+                                    <span class="fixed-price">Fixed</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No products yet. Start by adding your first product!</p>
+            {% endif %}
+        </div>
+        <!-- IMAGE OVERLAY -->
+        <div class="image-modal" id="productImageModal">
+            <button class="arrow left" onclick="prevModalImage(event)">&#10094;</button>
+            <img id="modalProductImage">
+            <button class="arrow right" onclick="nextModalImage(event)">&#10095;</button>
+            <span class="close" onclick="closeProductModal()">&times;</span>
+        </div>
+        <script>
+                let modalImages = [];
+                let currentIndex = 0;
+
+                function openProductImages(productId) {
+                    const card = document.querySelector(`.product-card[onclick*="${productId}"]`);
+                    modalImages = JSON.parse(card.dataset.images || "[]");
+
+                    if (modalImages.length === 0) return;
+
+                    currentIndex = 0;
+                    showModalImage();
+                    document.getElementById("productImageModal").classList.add("active");
+                }
+
+                function showModalImage() {
+                    document.getElementById("modalProductImage").src = modalImages[currentIndex];
+
+                    // hide arrows if only one image
+                    document.querySelector(".arrow.left").style.display =
+                    document.querySelector(".arrow.right").style.display =
+                        modalImages.length > 1 ? "block" : "none";
+                }
+
+                function prevModalImage(e) {
+                    e.stopPropagation();
+                    currentIndex = (currentIndex - 1 + modalImages.length) % modalImages.length;
+                    showModalImage();
+                }
+
+                function nextModalImage(e) {
+                    e.stopPropagation();
+                    currentIndex = (currentIndex + 1) % modalImages.length;
+                    showModalImage();
+                }
+
+                function closeProductModal() {
+                    document.getElementById("productImageModal").classList.remove("active");
+                }
+        </script>
+    </body>
+</html>
+

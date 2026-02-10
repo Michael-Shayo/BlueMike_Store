@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block meta_description %}
+    {{ shop.description|truncatechars:155 }}
+{% endblock %}
+
+{% block og_title %}
+    {{ shop.name }} on BlueSoko
+{% endblock %}
+
+{% block og_description %}
+    {{ shop.description|truncatechars:200 }}
+{% endblock %}
+
+{% block og_type %}website{% endblock %}
+
+{% block og_image %}
+    {% if shop.logo %}
+        {{ shop.logo.url }}
+    {% else %}
+        {% static 'images/bluemike_logo.png' %}
+    {% endif %}
+{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/shop.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="shop-page">
+      <!-- SHOP HEADER -->
+      <div class="shop-hero">
+          <h1 class="shop-name">{{ shop.name|capfirst }}</h1>
+          <div class="shop-intro-card">
+              <p class="shop-description">{{ shop.description }}</p>
+              {% if request.user.role == 'seller' %}
+              {% else %}
+                  {% if user.is_authenticated and user != shop.owner %}
+                    <form method="post" action="{% url 'bluesoko:rate_shop' shop.id %}" class="rating-card">
+                      {% csrf_token %}
+                      <span class="rating-title">⭐ Rate this shop</span>
+                      <select name="rating" required class="rating-select">
+                          <option value="">Select rating</option>
+                          {% for i in "12345" %}
+                              <option value="{{ i }}">{{ i }} ⭐</option>
+                          {% endfor %}
+                      </select>
+                      <button type="submit" class="rating-btn">
+                          Submit Rating
+                      </button>
+                    </form>
+                  {% endif %}
+              {% endif %}
+          </div>
+          <div class="shop-location">
+              <img src="{% static 'images/location.png' %}" alt="Location icon">
+              <span>{{ shop.location }}</span>
+          </div>
+          <div class="shop-map">
+              <iframe src="https://www.google.com/maps?q={{ shop.location|urlencode }}&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+          </div>
+          <a href="https://www.google.com/maps/search/?api=1&query={{ shop.location|urlencode }}" target="_blank" class="map-link">
+              <tt style=" color: aliceblue;">Open in Google Maps →</tt>
+          </a>
+      </div>
+      {% if shop.shop_location %}
+          <h3>📍 Shop Location</h3>
+          <div id="shop-map" style="height: 300px;"></div>
+          <script>
+              const shopLat = {{ shop.shop_location.latitude }};
+              const shopLng = {{ shop.shop_location.longitude }};
+              const shopMap = L.map('shop-map').setView([shopLat, shopLng], 14);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap contributors'
+                }).addTo(shopMap);
+                L.marker([shopLat, shopLng])
+                    .addTo(shopMap)
+                    .bindPopup("<b>{{ shop.name }}</b>");
+          </script>
+      {% endif %}
+      <!-- MESSAGES -->
+      {% if messages %}
+        <div class="alerts">
+          {% for message in messages %}
+          <div class="alert-success">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+      <!-- PRODUCTS -->
+      <div class="products-section">
+          <h2 class="section-title">Available Products</h2>
+          {% if products %}
+              <div class="products-grid">
+                  {% for product in products %}
+                    <a href="{% url 'bluesoko:product_detail' product.slug %}" class="product-card-link">
+                        <div class="product-card">
+                            <div class="product-image">
+                                {% if product.images.exists %}
+                                    {% if product.images.count > 1 %}
+                                        <button class="arrow left"
+                                          onclick="event.preventDefault(); prevImage('{{ product.id }}')">&#10094;</button>
+                                    {% endif %}
+                                    {% for img in product.images.all %}
+                                        <img src="{{ img.image.url }}"
+                                            class="product-img product-{{ product.id }} {% if forloop.first %}active{% endif %}"
+                                            alt="{{ product.name }}">
+                                    {% endfor %}
+                                    {% if product.images.count > 1 %}
+                                        <button class="arrow right" onclick="event.preventDefault(); nextImage('{{ product.id }}')">&#10095;</button>
+                                    {% endif %}
+                                {% else %}
+                                    <img src="{% static 'images/product-placeholder.svg' %}">
+                                {% endif %}
+                            </div>
+                            <div class="product-info">
+                                <h4>{{ product.name }}</h4>
+                                <p class="price">{{ product.price }} TZS</p>
+                            </div>
+                        </div>
+                    </a>
+                  {% endfor %}
+              </div>
+          {% else %}
+              <p class="no-products">No products yet.</p>
+          {% endif %}
+      </div>
+</div>
+<!--THIS ONLY BUTTON CLICKING WITH NO AUTO MOVEMENT-->
+{% comment %} <script>
+    function nextImage(productId) {
+        const images = document.querySelectorAll(`.product-${productId}`);
+        let currentIndex = Array.from(images).findIndex(img => img.classList.contains('active'));
+
+        images[currentIndex].classList.remove('active');
+        let nextIndex = (currentIndex + 1) % images.length;
+        images[nextIndex].classList.add('active');
+    }
+
+    function prevImage(productId) {
+        const images = document.querySelectorAll(`.product-${productId}`);
+        let currentIndex = Array.from(images).findIndex(img => img.classList.contains('active'));
+
+        images[currentIndex].classList.remove('active');
+        let prevIndex = (currentIndex - 1 + images.length) % images.length;
+        images[prevIndex].classList.add('active');
+    }
+</script> {% endcomment %}
+
+<!--THIS ONLY BUTTON CLICKING WITH  AUTO MOVEMENT-->
+<script>
+function nextImage(productId) {
+    const images = document.querySelectorAll(`.product-${productId}`);
+    if (images.length <= 1) return;
+
+    let currentIndex = Array.from(images).findIndex(img => img.classList.contains('active'));
+    images[currentIndex].classList.remove('active');
+
+    let nextIndex = (currentIndex + 1) % images.length; // loop back to first
+    images[nextIndex].classList.add('active');
+}
+
+function prevImage(productId) {
+    const images = document.querySelectorAll(`.product-${productId}`);
+    if (images.length <= 1) return;
+
+    let currentIndex = Array.from(images).findIndex(img => img.classList.contains('active'));
+    images[currentIndex].classList.remove('active');
+
+    let prevIndex = (currentIndex - 1 + images.length) % images.length; // loop back to last
+    images[prevIndex].classList.add('active');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const allProducts = document.querySelectorAll('.product-image');
+
+    allProducts.forEach(container => {
+        const images = container.querySelectorAll('img[class*="product-"]');
+
+        if (images.length <= 1) return; // skip if no images or only placeholder
+
+        const productId = images[0].className.match(/product-(\d+)/)[1];
+
+        // auto-slide every 30 seconds
+        setInterval(() => {
+            nextImage(productId);
+        }, 15000);
+    });
+});
+</script>
+
+{% endblock %}

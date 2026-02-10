@@ -1,0 +1,226 @@
+{%load static%}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Add Product | BlueSoko</title>
+      <meta name="description" content="Add new products to your BlueSoko shop. Manage pricing, images, stock, and categories easily from your seller dashboard.">
+      <!-- CANONICAL -->
+      <link rel="canonical" href="{{ request.build_absolute_uri }}">
+      <!-- OPEN GRAPH (SOCIAL SHARING) -->
+      <meta property="og:type" content="website">
+      <meta property="og:title" content="Add Product | BlueSoko Seller Dashboard">
+      <meta property="og:description" content="Add and manage products on BlueSoko. Upload images, set prices, stock levels, and categories easily.">
+      <meta property="og:url" content="{{ request.build_absolute_uri }}">
+      <meta property="og:site_name" content="BlueSoko">
+      <meta property="og:image" content="{% static 'images/bluemike_logo.png' %}">
+      <!-- TWITTER CARD -->
+      <meta name="twitter:card" content="summary_large_image">
+      <meta name="twitter:title" content="Add Product | BlueSoko Seller Dashboard">
+      <meta name="twitter:description" content="Easily add new products to your BlueSoko shop and manage your inventory.">
+      <meta name="twitter:image" content="{% static 'images/bluemike_logo.png' %}">
+      <!-- ROBOTS (IMPORTANT FOR PRIVATE PAGES) -->
+      <meta name="robots" content="noindex, nofollow">
+      <link rel="shortcut icon" href="{% static 'images/bluemike_logo.png' %}">
+      <link rel="stylesheet" href="{% static 'css/add_product.css'%}">
+
+    </head>
+    <body>
+      <form method="post" enctype="multipart/form-data">
+          <h2>Add Product</h2>
+          {% csrf_token %}
+          {% if messages %}
+              {% for message in messages %}
+                  <div class="message">{{ message }}</div>
+              {% endfor %}
+          {% endif %}
+          <label for="name">Product Name</label>
+          <input type="text" name="name" placeholder="Product name">
+          <label for="price">Price (TZS)</label>
+          <input type="number" step="0.01" name="price" placeholder="Price">
+          <label for="stock">Stock Quantity</label>
+          <input type="number" name="stock" placeholder="Stock quantity">
+          <div id="image-preview"></div>
+          <label for="images">Product Images</label>
+          <input type="file" name="images" id="image-input" multiple accept="image/*">
+          <label for="description">Product Description</label>
+          <textarea name="description" id="description"></textarea>
+          <label>
+            <input type="checkbox" name="negotiable">
+            Price is negotiable
+          </label>
+          <label for="category">Category</label>
+          <input list="category" name="category" placeholder="Select or type category">
+          <datalist id="category">
+              {% for category in categories %}
+                  <option value="{{ category.name }}">
+              {% endfor %}
+          </datalist>
+          <button type="submit">Add Product</button>
+      </form>
+      {% comment %} <script>
+          const input = document.getElementById("image-input");
+          const preview = document.getElementById("image-preview");
+          const MAX_IMAGES = 5;
+          const MAX_SIZE = 2 * 1024 * 1024; // 2MB
+
+          input.addEventListener("change", handleImageSelection);
+
+          function handleImageSelection() {
+            preview.innerHTML = "";
+            const files = Array.from(input.files);
+
+            if (files.length > MAX_IMAGES) {
+              alert(`Maximum ${MAX_IMAGES} images allowed`);
+              input.value = "";
+              return;
+            }
+
+            files.forEach(file => {
+              if (!file.type.startsWith("image/")) return;
+              if (file.size > MAX_SIZE) {
+                alert(`"${file.name}" is too large (max 2MB)`);
+                return;
+              }
+              previewImage(file);
+            });
+          }
+
+          function previewImage(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+              const img = document.createElement("img");
+              img.src = e.target.result;
+              preview.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+          }
+      </script> {% endcomment %}
+      <script>
+          const input = document.getElementById("image-input");
+          const preview = document.getElementById("image-preview");
+
+          const MAX_IMAGES = 5;
+          const MAX_UPLOAD_SIZE = 7 * 1024 * 1024; // 7MB
+          const MAX_COMPRESSED_SIZE = 250 * 1024;  // 250KB
+          const MAX_WIDTH = 1024;                  // max width for scaling
+
+          input.addEventListener("change", handleImageSelection);
+
+          async function handleImageSelection() {
+              preview.innerHTML = "";
+              const files = Array.from(input.files);
+
+              if (files.length > MAX_IMAGES) {
+                  alert(`Maximum ${MAX_IMAGES} images allowed`);
+                  input.value = "";
+                  return;
+              }
+
+              const optimizedFiles = [];
+
+              for (let file of files) {
+                  if (!file.type.startsWith("image/")) {
+                      alert(`"${file.name}" is not a valid image`);
+                      continue;
+                  }
+
+                  if (file.size > MAX_UPLOAD_SIZE) {
+                      alert(`"${file.name}" is too large (max 7MB)`);
+                      continue;
+                  }
+
+                  const optimized = await compressImage(file);
+                  optimizedFiles.push(optimized);
+                  previewImage(optimized);
+              }
+
+              // Replace input files with optimized files for submission
+              const dataTransfer = new DataTransfer();
+              optimizedFiles.forEach(f => dataTransfer.items.add(f));
+              input.files = dataTransfer.files;
+          }
+
+          // Show live preview of the optimized image
+            function previewImage(file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement("img");
+                    img.src = e.target.result;
+                    img.style.cursor = "zoom-in";
+                    img.onclick = () => openOverlay(e.target.result);
+                    preview.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            }
+
+
+          // Compress image, scale down, convert to WebP, and limit size
+          function compressImage(file) {
+              return new Promise((resolve) => {
+                  const img = new Image();
+                  img.onload = function() {
+                      const canvas = document.createElement("canvas");
+                      const ctx = canvas.getContext("2d");
+
+                      // Scale image if wider than MAX_WIDTH
+                      const scale = Math.min(1, MAX_WIDTH / img.width);
+                      canvas.width = img.width * scale;
+                      canvas.height = img.height * scale;
+                      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                      let quality = 0.9; // start high
+                      function attemptCompress() {
+                          canvas.toBlob(function(blob) {
+                              if (blob.size > MAX_COMPRESSED_SIZE && quality > 0.1) {
+                                  quality -= 0.1; // reduce quality to shrink size
+                                  attemptCompress();
+                              } else {
+                                const timestamp = Date.now();
+                                const cleanName = file.name.split(".")[0].replace(/\s+/g, "_");
+
+                                const optimizedFile = new File(
+                                    [blob],
+                                    `bluesoko_product_${cleanName}_${timestamp}.webp`,
+                                    { type: "image/webp" }
+                                );
+
+
+                                  resolve(optimizedFile);
+                              }
+                          }, "image/webp", quality);
+                      }
+
+                      attemptCompress();
+                  };
+
+                  img.src = URL.createObjectURL(file);
+              });
+          }
+          //overlay control
+          function openOverlay(src) {
+          const overlay = document.getElementById("imageOverlay");
+          const image = document.getElementById("overlayImage");
+          image.src = src;
+          overlay.classList.add("active");
+            }
+
+            function closeOverlay() {
+                document.getElementById("imageOverlay").classList.remove("active");
+            }
+
+            // Close on ESC
+            document.addEventListener("keydown", (e) => {
+                if (e.key === "Escape") closeOverlay();
+            });
+
+      </script>
+            <!-- IMAGE PREVIEW OVERLAY -->
+      <div class="image-overlay" id="imageOverlay">
+          <span class="close-btn" onclick="closeOverlay()">&times;</span>
+          <img id="overlayImage">
+      </div>
+
+    </body>
+</html>

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}All Shops{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/shop_list.css' %}">
+{% endblock %}
+
+{% block content %}
+    <h1>🛍️ Shops</h1>
+    <p style="text-align: center; font-size: larger;">Discover trusted sellers and their products</p>
+    <br><br>
+    <form method="get" class="shop-toolbar">
+        {% comment %} 
+            <input type="text" name="q" placeholder="Search shop..." value="{{ query }}">
+        {% endcomment %}
+        <input type="text" name="q" placeholder="Search shop...">
+        <select name="location">
+            <option value="">All locations</option>
+            {% for loc in locations %}
+                <option value="{{ loc }}" {% if loc == selected_location %}selected{% endif %}>
+                    {{ loc }}
+                </option>
+            {% endfor %}
+        </select>
+        <button type="submit">Search</button>
+    </form>
+    <div class="shop-grid">
+        {% for shop in shops %}
+            <div class="shop-card" onclick="goToShop('{{ shop.slug }}')">
+                {% if shop.rating_count >= 10 and shop.avg_rating >= 4.5 %}
+                    <div class="top-rated-badge">🏆 Top Rated</div>
+                {% endif %}
+                <h3>{{ shop.name }}</h3>
+                <div class="rating">
+                    {% for _ in "12345" %}
+                        {% if forloop.counter <= shop.avg_rating|default:0|floatformat:0|add:"0" %}
+                            ⭐
+                        {% else %}
+                            ☆
+                        {% endif %}
+                    {% endfor %}
+                    <small>({{ shop.rating_count }} reviews)</small>
+                    <br>
+                    <tt> 🏆Score: {{ shop.weighted_score|floatformat:1 }}</tt>
+                    <br>
+                    <br>
+                </div>
+                <p>{{ shop.description|truncatewords:15 }}</p>
+                <small>
+                    <i class="fas fa-map-marker-alt"></i> {{ shop.location|capfirst }}
+                    <br>
+                    🛒 {{ shop.product_count }} products
+                </small>
+                <div class="shop-footer">
+                    <span>📞 {{ shop.phone }}</span>
+                    <span>⭐ Trusted</span>
+                </div>
+            </div>
+        {% empty %}
+            <span class="no_shop">No shops found.</span>
+        {% endfor %}
+    </div>
+    <br><br><br>
+    <script>
+        function goToShop(slug) {
+          window.location.href = `/shop/${slug}/`;
+        }
+    </script>
+{% endblock %}
+

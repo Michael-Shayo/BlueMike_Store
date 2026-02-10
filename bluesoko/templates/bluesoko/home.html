@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}BlueSoko | Everything you need, delivered{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/bluesoko_home.css' %}">
+{% endblock %}
+
+{% block meta_description %}
+    Shop electronics, fashion, groceries, and more from trusted sellers across Tanzania.
+{% endblock %}
+
+{% block og_title %}
+    BlueSoko | Everything you need, delivered
+{% endblock %}
+
+{% block og_description %}
+    Discover top-rated shops and products on BlueSoko. Fast delivery, trusted sellers.
+{% endblock %}
+
+{% block og_image %}
+    {% static 'images/location.png' %}
+{% endblock %}
+
+{% block content %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Everything you need, delivered</h1>
+            <p>Shop electronics, home appliances, fashion, groceries & more.</p>
+            <form method="get" action="{% url 'bluesoko:product_list' %}" class="hero-search">
+                <select name="type" class="search-type">
+                    <option value="all" {% if search_type == "all" %}selected{% endif %}>All</option>
+                    <option value="product" {% if search_type == "product" %}selected{% endif %}>Products</option>
+                    <option value="shop" {% if search_type == "shop" %}selected{% endif %}>Shops</option>
+                </select>
+                <input type="search" name="q" value="{{query}}" placeholder="Search for products..." />
+                <button type="submit">Search</button>
+            </form>
+            <a href="{% url 'bluesoko:product_list' %}" class="hero-cta">Start shopping</a>
+        </div>
+    </section>
+    <!-- CATEGORIES -->
+    <section class="categories">
+        <h2>Shop by category</h2>
+        <div class="category-grid">
+            {% for cat in top_categories %}
+                <a href="{% url 'bluesoko:product_list' %}?category={{ cat.category__slug }}"class="category-card">
+                    {% if cat.category__slug == "electronics" %}
+                      <i class="fa-solid fa-tv"></i>
+                    {% elif cat.category__slug == "fashion" %}
+                      <i class="fa-solid fa-shirt"></i>
+                    {% elif cat.category__slug == "home-appliances" %}
+                      <i class="fa-solid fa-blender"></i>
+                    {% else %}
+                      <i class="fa-solid fa-tags"></i>
+                    {% endif %}
+                    <span>{{ cat.category__name }}</span>
+                    <small class="cat-count">{{ cat.total }} item{{ cat.total|pluralize }}</small>
+                </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% if top_rated_shops %}
+            <section class="top-rated-shops">
+                <h2>🏆 Top-Rated Shops</h2>
+                <div class="shop-grid">
+                    {% for shop in top_rated_shops %}
+                        <div class="shop-card" onclick="location.href='{% url 'bluesoko:shop_detail' shop.slug %}'">
+                            <div class="shop-info">
+                                <h3>{{ shop.name }}</h3>
+                                <!-- Rating info -->
+                                {% comment %} 
+                                    <div class="rating">
+                                        ⭐ {{ shop.avg_rating|floatformat:1|default_if_none:"0.0" }} / 5
+                                        <small>({{ shop.rating_count }} reviews)</small>
+                                    </div> 
+                                {% endcomment %}
+                                <div class="rating">
+                                    {% for _ in "12345" %}
+                                        {% if forloop.counter <= shop.avg_rating|default:0|floatformat:0|add:"0" %}
+                                            ⭐
+                                        {% else %}
+                                            ☆
+                                        {% endif %}
+                                    {% endfor %}
+                                    <small>({{ shop.rating_count }} reviews)</small>
+                                </div>
+                                <p>{{ shop.description|truncatewords:12 }}</p>
+                                <small>🛒 {{ shop.product_count }} products</small>
+                                <!-- Optional: You can also still show a badge -->
+                                <div class="top-rated-badge">🏆 Top Rated</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </section>
+    {% endif %}
+
+
+    <!-- FEATURED PRODUCTS -->
+    <section class="featured">
+        <h2>Featured products</h2>
+            <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('top')">Top selling</button>
+            <button class="tab-btn" onclick="showTab('new')">New arrivals</button>
+        </div>
+            <!-- Top Selling -->
+        <div id="top" class="tab-content active">
+            <div class="featured-grid">
+                {% for product in top_selling %}
+                    <div class="product-card">
+                        {% if product.images.first %}
+                            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
+                        {% else %}
+                            <img src="{% static 'images/product-placeholder.svg' %}" alt="No image">
+                        {% endif %}
+                        <h3>{{ product.name }}</h3>
+                        <p class="price">TSh {{ product.price }}</p>
+                        <a href="{% url 'bluesoko:product_detail' product.slug %}">View product</a>
+                    </div>
+                {% empty %}
+                    <p>No top selling products yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+            <!-- TOP-RATED SHOPS -->
+
+            <!-- New Arrivals -->
+        <div id="new" class="tab-content">
+            <div class="featured-grid">
+                {% for product in new_arrivals %}
+                    <div class="product-card">
+                        {% if product.images.first %}
+                            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
+                        {% else %}
+                            <img src="{% static 'images/product-placeholder.svg' %}" alt="No image">
+                        {% endif %}
+                        <h3>{{ product.name }}</h3>
+                        <p class="price">TSh {{ product.price }}</p>
+                        <a href="{% url 'bluesoko:product_detail' product.slug %}">View product</a>
+                    </div>
+                {% empty %}
+                    <p>No new arrivals yet.</p>
+                {% endfor %}
+            </div>
+        </div> 
+    </section>
+    <!-- WHY SHOP WITH US -->
+    <section class="why-us">
+        <h2>Why shop with BlueSoko?</h2>
+        <div class="why-grid">
+            <div>
+                <h4>🚚 Fast delivery</h4>
+                <p>Quick and reliable delivery to your doorstep.</p>
+            </div>
+            <div>
+                <h4>🛒 Trusted sellers</h4>
+                <p>Verified sellers offering quality products.</p>
+            </div>
+            <div>
+                <h4>🔒 Secure checkout</h4>
+                <p>Your payments and data are always protected.</p>
+            </div>
+        </div>
+    </section>
+    <script>
+        function showTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn =>
+            btn.classList.remove('active')
+            );
+            document.querySelectorAll('.tab-content').forEach(content =>
+            content.classList.remove('active')
+            );
+
+            document.querySelector(`button[onclick="showTab('${tab}')"]`)
+            .classList.add('active');
+            document.getElementById(tab).classList.add('active');
+        }
+    </script>
+{% endblock %}

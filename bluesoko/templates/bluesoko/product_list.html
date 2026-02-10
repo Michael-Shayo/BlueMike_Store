@@ -1,0 +1,175 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <!-- BASIC META -->
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Products - Blue Mike</title>
+        <meta name="description" content="Get new products at good quality from your BlueSoko. Manage pricing, images, stock, and categories easily for all sellers.">
+        <!-- ROBOTS (IMPORTANT FOR PRIVATE PAGES) -->
+        <meta name="robots" content="index,follow">
+        <!-- CANONICAL -->
+        <link rel="canonical" href="{{ request.build_absolute_uri }}">
+        <!-- OPEN GRAPH (SOCIAL SHARING) -->
+        <meta property="og:type" content="website">
+        <meta property="og:title" content="Browse Product | BlueMike product_list Dashboard">
+        <meta property="og:description" content="Get new products at good quality from your BlueSoko. Manage pricing, images, stock, and categories easily for all sellers.">
+        <meta property="og:url" content="{{ request.build_absolute_uri }}">
+        <meta property="og:site_name" content="BlueSoko">
+        <meta property="og:image" content="{% static 'images/bluemike_logo.png' %}">
+        <link rel="shortcut icon" href="{% static 'images/bluemike_logo.png' %}">
+        <!-- STYLES -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <link rel="stylesheet" href="{% static 'css/product_list.css' %}">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+        <!-- TWITTER CARD -->
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="Browse Product | BlueMike Products Dashboard">
+        <meta name="twitter:description" content="Get new products at good quality from your BlueSoko. Manage pricing, images, stock, and categories easily for all sellers.">
+        <meta name="twitter:image" content="{% static 'images/bluemike_logo.png' %}">
+</head>
+    </head>
+    <body>
+        <!-- NAVBAR -->
+        <nav class="navbar">
+            <div class="navbar-left">
+                <a href="{% url 'bluesoko:home' %}" class="logo">
+                    <img src="{% static 'images/bluemike_logo.png' %}">
+                    Blue Mike
+                </a>
+            </div>
+            {% if cart_count > 0 %}
+                <div class="navbar-center">
+                    <a href="{% url 'bluesoko:cart' %}" class="cart-link">
+                        🛒 <span class="cart-count">{{ cart_count }}</span>
+                    </a>
+                </div>
+            {% endif %}
+            <div class="navbar-right">
+                <div class="profile-dropdown">
+                    <button class="profile-btn">
+                        <div class="profile-avatar">
+                            {% if user.is_authenticated and user.profile.avatar %}
+                                <img src="{{ user.profile.avatar.url }}">
+                            {% else %}
+                                <img src="{% static 'images/default-avatar.png' %}">
+                            {% endif %}
+                        </div>
+                    </button>
+                    <div class="dropdown-menu">
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'main:profile' %}"><i class="fas fa-user"></i> Profile</a>
+                            {% if user.is_seller %}
+                                <a href="{% url 'bluesoko:seller_dashboard' %}"><i class="fas fa-home" style="margin-right: 8px;"></i>Seller Dashboard</a>
+                                <a href="{% url 'bluesoko:my_orders' %}"><i class="fas fa-shopping-cart"></i>Buying Orders</a>
+                            {% else %}
+                                <a href="{% url 'bluesoko:my_orders' %}"><i class="fas fa-shopping-cart"></i>Buying Orders</a>
+                            {% endif %}
+                        {% else %}
+                            <a href="{% url 'bluesoko:shop_list'%}"><i class="fas fa-store"></i>Shops</a>
+                        {% endif%}
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'bluesoko:shop_list'%}"><i class="fas fa-store"></i>Shops</a>
+                        {% if request.user.is_superuser %}
+                            <a href="{% url 'admin:index' %}"><i class="fas fa-user-shield"></i>Admin Panel</a>
+                        {% endif %}
+                            <a href="{% url 'main:logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        {% else %}
+                            <a href="{% url 'main:login' %}"><i class="fas fa-sign-in-alt"></i>Login</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <!-- MOBILE FILTER BAR -->
+        <div class="mobile-filter-bar">
+            <button id="openFilters">Filters</button>
+        </div>
+        <div class="shop-layout">
+            <!-- FILTERS (YOUR LOGIC RESTORED) -->
+            <aside class="filters" id="filtersPanel">
+              <form method="get">
+                  <div class="filter-header">
+                      <h3>Filters</h3>
+                      <a href="{% url 'bluesoko:product_list' %}" class="reset-btn">Reset</a>
+                  </div>
+                  <div class="filter-group">
+                      <h4>Price (TZS)</h4>
+                      <div class="price-row">
+                          <input type="number" name="min_price" placeholder="Min" value="{{ min_price }}">
+                          <input type="number" name="max_price" placeholder="Max" value="{{ max_price }}">
+                      </div>
+                  </div>
+                  <div class="filter-group">
+                      <h4>Categories</h4>
+                      <div class="checkbox-list">
+                          {% for cat in categories|dictsortreversed:"product_count" %}
+                              <label>
+                                  <input type="checkbox" name="category" value="{{ cat.slug }}"
+                                  {% if cat.slug in selected_categories %}checked{% endif %}>
+                                  {{ cat.name }} ({{ cat.product_count }})
+                              </label>
+                          {% endfor %}
+                      </div>
+                  </div>
+                  <button type="submit" class="apply-btn">Apply Filters</button>
+              </form>
+            </aside>
+              <!-- PRODUCTS -->
+            <main>
+                <div class="products-header">
+                  <h2>Good Products</h2>
+                  <p>{{ products.count }} items</p>
+                </div>
+                <div class="product-grid">
+                    {% for product in products %}
+                        <div class="product-card" onclick="location.href='{% url 'bluesoko:product_detail' product.slug %}'">
+                            <div class="product-image">
+                                {% if product.images.exists %}
+                                  <img src="{{ product.images.first.image.url }}">
+                                {% else %}
+                                  <img src="{% static 'images/product-placeholder.svg' %}">
+                                {% endif %}
+                            </div>
+                            <div class="product-info">
+                                <strong>{{ product.name|capfirst }}</strong>
+                                <div class="price">Price: {{ product.price|floatformat:0 }} TZS</div>
+                                <p class="shop">
+                                    Shop:
+                                    <a href="{% url 'bluesoko:shop_detail' product.shop.slug %}" onclick="event.stopPropagation();">
+                                      {{ product.shop.name|capfirst  }}
+                                    </a>
+                                </p>
+                                <span class="category-badge">{{ product.category.name }}</span>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="empty-state">
+                            <h3>No items found 😔</h3>
+                        </div>
+                    {% endfor %}
+                </div>
+            </main>
+        </div>
+        <footer class="fixed-footer">
+            &copy; {% now "Y" %} BlueSoko — All rights reserved
+        </footer>
+        <script>
+            /* profile dropdown */
+            const profileBtn = document.querySelector('.profile-btn');
+            const dropdown = document.querySelector('.dropdown-menu');
+            profileBtn.addEventListener('click', e => {
+              e.stopPropagation();
+              dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
+            });
+            document.addEventListener('click', () => dropdown.style.display = 'none');
+            /* mobile filters */
+            document.getElementById('openFilters')
+              ?.addEventListener('click', () =>
+                document.getElementById('filtersPanel').classList.toggle('open')
+              );
+        </script>
+    </body>
+</html>
+

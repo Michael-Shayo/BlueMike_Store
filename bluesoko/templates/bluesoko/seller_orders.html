@@ -1,0 +1,91 @@
+ {% extends "base.html" %}
+ {% load static %}
+ {% block title %}Selling Orders{% endblock %}
+ 
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/seller_orders_dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+      <h2 class="page-title">Selling Orders</h2>
+      <div class="orders-grid">
+          {% for item in order_items %}
+              {% ifchanged item.order.id %}
+                  <div class="order-card" onclick="openOrder('{{ item.order.id }}')">
+                      <div class="order-top">
+                          <span class="order-id">Order #{{ item.order.id }}</span>
+                          <span class="order-status status-{{ item.order.status }}">{{ item.order.status|capfirst }}</span>
+                      </div>
+                      <div class="order-meta">
+                          Buyer: {{ item.order.user.username|capfirst }}<br>
+                          {{ item.order.created_at|date:"M d, Y H:i" }}
+                      </div>
+                  </div>
+              {% endifchanged %}
+          {% empty %}
+              <p style="padding:20px;text-align:center;">No orders found.</p>
+          {% endfor %}
+      </div>
+      <!-- MODALS -->
+      {% for item in order_items %}
+          <div class="modal" id="order-{{ item.order.id }}">
+              <div class="modal-box">
+                  <div class="modal-header">
+                      <div>
+                          <strong>Order #{{ item.order.id }}</strong><br>
+                          <small>Buyer: {{ item.order.user.username|capfirst }}</small><br>
+                          <small>Ordered: {{ item.order.created_at|date:"M d, Y H:i" }}</small>
+                      </div>
+                      <button class="close-btn" onclick="closeOrder('{{ item.order.id }}')">&times;</button>
+                  </div>
+                  <div class="items">
+                      {% for i in order_items %}
+                          {% if i.order.id == item.order.id %}
+                              <div class="item">
+                                  {% if i.product.images.exists %}
+                                      <img src="{{ i.product.images.first.image.url }}">
+                                  {% else %}
+                                      <img src="{% static 'images/product-placeholder.svg' %}">
+                                  {% endif %}
+                                  <div>
+                                      <h4>{{ i.product.name }}</h4>
+                                      <p>Quantity: {{ i.quantity }}</p>
+                                      <p>Price: {{ i.price }} TZS</p>
+                                      <p>Status: {{ i.status }}</p>
+                                  </div>
+                                  <div class="actions">
+                                      <form method="post" action="{% url 'bluesoko:update_order_item_status' i.id %}">
+                                          {% csrf_token %}
+                                          <select name="status">
+                                            <option value="pending" {% if i.status == "pending" %}selected{% endif %}>Pending</option>
+                                            <option value="accepted" {% if i.status == "accepted" %}selected{% endif %}>Accept</option>
+                                            <option value="rejected" {% if i.status == "rejected" %}selected{% endif %}>Reject</option>
+                                            <option value="completed" {% if i.status == "completed" %}selected{% endif %}>Complete</option>
+                                          </select>
+                                          <button type="submit">Update</button>
+                                      </form>
+                                  </div>
+                              </div>
+                          {% endif %}
+                      {% endfor %}
+                  </div>
+                  <div class="modal-footer">
+                      <a href="mailto:{{ item.order.user.email }}" class="email-btn">Contact Buyer</a>
+                      {% if item.order.phone %}
+                        <a href="tel:{{ item.order.phone }}" class="call-btn">Call Buyer</a>
+                      {% endif %}
+                  </div>
+              </div>
+          </div>
+      {% endfor %}
+      <script>
+          function openOrder(id){
+            document.getElementById('order-'+id).classList.add('show');
+            document.getElementById('order-'+id).style.display='flex';
+          }
+          function closeOrder(id){
+            document.getElementById('order-'+id).classList.remove('show');
+            document.getElementById('order-'+id).style.display='none';
+          }
+      </script>
+{% endblock %}
