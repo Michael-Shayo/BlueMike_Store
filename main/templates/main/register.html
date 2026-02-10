@@ -1,0 +1,220 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Create an Account | BlueSoko Online Store</title>
+        <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+    </head>
+    <body>
+        <div class="form-card">
+            <h2>Create an account</h2>
+
+            <div class="account-type">
+                <label>
+                    <input type="radio" name="account_type" value="buyer" checked onclick="toggleForm()">
+                    <span>Buyer</span>
+                </label>
+                <label>
+                    <input type="radio" name="account_type" value="seller" onclick="toggleForm()">
+                    <span>Seller</span>
+                </label>
+            </div>
+
+            <form method="POST">
+                <div class="message-board">
+                    {% csrf_token %}
+                    {% if error %}
+                    <p style="color:red;">{{ error }}</p>
+                    {% endif %}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="message-alert">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                    <br>
+                </div>
+
+
+                <input type="hidden" name="account_type" id="accountType" value="buyer">
+
+                <div class="form-group name-group">
+                    <div class="name-field">
+                        <label>First Name</label>
+                        <input type="text" name="first_name" placeholder="First name">
+                    </div>
+
+                    <div class="name-field">
+                        <label>Last Name</label>
+                        <input type="text" name="last_name" placeholder="Last name">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" name="username" placeholder="Choose a unique username">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" placeholder="you@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <div class="password-wrapper">
+                        <input type="password" name="password" id="password" placeholder="Create a strong password"  oninput="checkStrength()">
+                        <span class="toggle-password" onclick="togglePassword()">Show</span>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm Password</label>
+                        <input type="password" name="password2" placeholder="Repeat password"  oninput="checkStrength()">
+                    </div>
+                </div>
+                <div class="strength-meter">
+                    <div class="strength-bar" id="strengthBar"></div>
+                </div>
+                <div class="strength-text" id="strengthText">Use at least 8 characters</div>
+                <br>
+                <div class="form-group" id="phoneField">
+                    <label>Phone (optional)</label>
+                    <input type="text" name="phone" placeholder="Required — For direct contact and whatsapp ">
+                </div>
+                <div id="sellerFields">
+                    <div class="form-group">
+                        <label>Where is your business registered?</label>
+                        <select name="region" >
+                            <option value="">Select your region</option>
+                            <option value="arusha">Arusha</option>
+                            <option value="dar_es_salaam">Dar es Salaam</option>
+                            <option value="dodoma">Dodoma</option>
+                            <option value="geita">Geita</option>
+                            <option value="iringa">Iringa</option>
+                            <option value="kagera">Kagera</option>
+                            <option value="kilimanjaro">Kilimanjaro</option>
+                            <option value="mbeya">Mbeya</option>
+                            <option value="morogoro">Morogoro</option>
+                            <option value="mwanza">Mwanza</option>
+                            <option value="tanga">Tanga</option>
+                            <option value="zanzibar_west">Zanzibar West</option>
+                        </select>
+                    </div> 
+                    <div class="info">
+                        If your business isn't formally registered, select your region of residence.
+                    </div>
+                    <div class="form-group">
+                        <label>Business Name</label>
+                        <input type="text" name="business_name" placeholder="Your registered business name">
+                    </div>
+                    <div class="form-group">
+                        <label>Business Email</label>
+                        <input type="email" name="business_email" placeholder="contact@yourbusiness.com">
+                    </div>
+                </div>
+
+                <button id="submitBtn" type="submit">Register</button>
+            </form>
+
+            <p class="auth-footer">
+                Already have an account?
+                <a href="{% url  'main:login' %}">Sign in</a>
+            </p>
+        </div>
+    </body>
+    <script>
+        function toggleForm() {
+            const sellerRadio = document.querySelector('input[value="seller"]');
+            const isSeller = sellerRadio.checked;
+
+            document.getElementById('sellerFields').classList.toggle('active', isSeller);
+            document.getElementById('submitBtn').classList.toggle('move-down', isSeller);
+            document.getElementById('accountType').value = isSeller ? 'seller' : 'buyer';
+
+            document.querySelector('#phoneField label').textContent =
+                isSeller ? 'Phone (required)' : 'Phone (optional)';
+
+            // 📍 AUTO-DETECT LOCATION ONLY FOR SELLER
+            if (isSeller) {
+                detectLocation();
+            } else {
+                // Clear location if buyer
+                document.getElementById("latitude").value = "";
+                document.getElementById("longitude").value = "";
+            }
+        }
+
+        /* ===========================
+        PASSWORD STRENGTH
+        =========================== */
+        function checkStrength() {
+            const p = password.value;
+            const bar = strengthBar;
+            const text = strengthText;
+            let s = 0;
+
+            if (p.length >= 8) s++;
+            if (/[A-Z]/.test(p)) s++;
+            if (/[0-9]/.test(p)) s++;
+            if (/[^A-Za-z0-9]/.test(p)) s++;
+
+            const widths = ["0%", "5%", "25%", "50%", "75%", "100%"];
+            bar.style.width = widths[s];
+            text.textContent = ["Use at least 8 characters","Very weak","Weak","Fair","Good","Strong"][s];
+        }
+
+        /* ===========================
+        SHOW / HIDE PASSWORD
+        =========================== */
+        function togglePassword() {
+            const passwordInput = document.getElementById("password");
+            const toggle = document.querySelector(".toggle-password");
+
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                toggle.textContent = "Hide";
+            } else {
+                passwordInput.type = "password";
+                toggle.textContent = "Show";
+            }
+        }
+
+        /* ===========================
+        GEOLOCATION FUNCTION
+        =========================== */
+        function detectLocation() {
+            if (!navigator.geolocation) {
+                console.warn("Geolocation not supported");
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                function (position) {
+                    document.getElementById("latitude").value = position.coords.latitude;
+                    document.getElementById("longitude").value = position.coords.longitude;
+
+                    console.log(
+                        "Seller location captured:",
+                        position.coords.latitude,
+                        position.coords.longitude
+                    );
+                },
+                function () {
+                    console.warn("Location permission denied or unavailable");
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        }
+
+        /* ===========================
+        RUN ON PAGE LOAD (IF SELLER PRESELECTED)
+        =========================== */
+        document.addEventListener("DOMContentLoaded", function () {
+            const sellerRadio = document.querySelector('input[value="seller"]');
+            if (sellerRadio && sellerRadio.checked) {
+                detectLocation();
+            }
+        });
+    </script>
+</html>

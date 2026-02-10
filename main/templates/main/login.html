@@ -1,0 +1,124 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="description" content="Login to BlueMike Online Store to manage your account, track orders, and shop from trusted sellers.">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="robots" content="noindex, follow">
+        <!--Canonical URL-->
+        <link rel="canonical" href="https://www.bluesoko.com/login/">
+        <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+        <title>Login | BlueSoko Online Store</title>
+    </head>
+    <body>
+        <div class="form-card">
+            {% comment %} <h1>Login to Your BlueMike Account</h1> {% endcomment %}
+            <h2>Login to Your BlueSoko Account</h2>
+            <form method="POST">
+                    <div class="message-board">
+                        {% csrf_token %}
+                        {% if error %}
+                        <p style="color:red;">{{ error }}</p>
+                        {% endif %}
+                        {% if messages %}
+                            {% for message in messages %}
+                                <div class="message-alert">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                        <br>
+                    </div>
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" name="username" placeholder="Your Username">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                    <div class="password-wrapper">
+                        <input type="password"
+                        name="password"
+                        id="password"
+                        placeholder="Enter password"
+                        oninput="checkStrength()">
+                        <span class="toggle-password" onclick="togglePassword()">Show</span>
+                    </div>
+                    <div class="strength-meter">
+                        <div class="strength-bar" id="strengthBar"></div>
+                    </div>
+                    <button type="submit">Login</button>
+                    <div class="auth-links">
+                        <a href="{% url 'password_reset' %}">Forgot password?</a>
+                    </div>
+                    <p class="auth-footer">
+                        New to BlueSoko?
+                        <a href="{% url  'main:register' %}">Create an account</a>
+                    </p>
+            </form>
+        </div>
+    </body>
+    <script>
+        function checkStrength() {
+        const password = document.getElementById("password").value;
+        const bar = document.getElementById("strengthBar");
+        const text = document.getElementById("strengthText");
+
+        let strength = 0;
+
+        if (password.length >= 8) strength++;
+        if (/[A-Z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+        if (strength === 0) {
+            bar.style.width = "0%";
+            text.textContent = "Use at least 8 characters";
+            bar.style.background = "#0d6efd";
+        }
+            else if (strength === 1) {
+            bar.style.width = "5%";
+            text.textContent = "very Weak password";
+            bar.style.background = "#ff0000";
+        } 
+        else if (strength === 2) {
+            bar.style.width = "25%";
+            text.textContent = "Weak password";
+            bar.style.background = "#084298";
+        } 
+        else if (strength === 3) {
+            bar.style.width = "50%";
+            text.textContent = "Fair password";
+            bar.style.background = "#0d6efd";
+        } 
+        else if (strength === 4) {
+            bar.style.width = "75%";
+            text.textContent = "Good password";
+            bar.style.background = "#084298";
+        } 
+        else {
+            bar.style.width = "100%";
+            text.textContent = "Strong password";
+            bar.style.background = "#071125";
+        }
+        }
+        function togglePassword() {
+            const passwordInput = document.getElementById("password");
+            const toggle = document.querySelector(".toggle-password");
+
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                toggle.textContent = "Hide";
+            } else {
+                passwordInput.type = "password";
+                toggle.textContent = "Show";
+            }
+        }
+    </script>
+    <script type="application/ld+json">
+        {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Login",
+        "description": "Secure login page for BlueMike Online Store users to access their accounts."
+        }
+    </script>
+</html>

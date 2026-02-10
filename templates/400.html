@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>400 – Bad Request</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            background: linear-gradient(135deg, #0a1aff, #1e3cff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: "Segoe UI", Arial, sans-serif;
+            color: #ffffff;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.12);
+            padding: 50px 60px;
+            border-radius: 14px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+            max-width: 500px;
+        }
+
+        h1 {
+            font-size: 96px;
+            margin: 0;
+            font-weight: 800;
+            letter-spacing: 4px;
+        }
+
+        h2 {
+            margin-top: 10px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        p {
+            margin-top: 20px;
+            font-size: 16px;
+            line-height: 1.6;
+            opacity: 0.95;
+        }
+
+        a {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 14px 34px;
+            background: #ffffff;
+            color: #0a1aff;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: 0.3s ease;
+        }
+
+        a:hover {
+            background: #dfe6ff;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>400</h1>
+        <h2>Bad Request</h2>
+        <p>
+            The server couldn’t understand your request.<br>
+            Please check what you sent and try again — nicely 😉
+        </p>
+        <a href="{% url 'bluesoko:home' %}">Go Back Home</a>
+    </div>
+</body>
+</html>

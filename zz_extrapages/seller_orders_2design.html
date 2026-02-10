@@ -1,0 +1,246 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - Dashboard</title>
+    
+    <style>
+        /* Dashboard container */
+.dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+.page-title {
+    font-size: 28px;
+    margin-bottom: 25px;
+    color: #333;
+}
+
+/* Alerts */
+.alert {
+    padding: 10px 15px;
+    background-color: #d4edda;
+    color: #155724;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+
+/* Orders grid */
+.orders-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+}
+
+/* Individual order card */
+.order-card {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.order-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+
+/* Product image */
+.order-image img {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+/* Order details */
+.order-info p {
+    margin: 4px 0;
+    font-size: 14px;
+    color: #444;
+}
+
+/* Status badge */
+.status-badge {
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    text-transform: capitalize;
+    display: inline-block;
+    margin-top: 5px;
+}
+
+.status-badge.pending { background-color: #fff3cd; color: #856404; }
+.status-badge.accepted { background-color: #d4edda; color: #155724; }
+.status-badge.rejected { background-color: #f8d7da; color: #721c24; }
+.status-badge.completed { background-color: #cce5ff; color: #004085; }
+
+/* Status form */
+.status-form {
+    margin-top: 10px;
+    display: flex;
+    gap: 5px;
+}
+
+.status-form select {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.status-form button {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+}
+
+.status-form button:hover {
+    background-color: #0056b3;
+}
+
+/* Action buttons */
+.action-buttons {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+}
+
+.action-buttons a {
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    color: white;
+    font-size: 14px;
+    text-align: center;
+}
+
+.btn-view {
+    background-color: #28a745;
+}
+
+.btn-view:hover {
+    background-color: #218838;
+}
+
+.btn-contact {
+    background-color: #17a2b8;
+}
+
+.btn-contact:hover {
+    background-color: #117a8b;
+}
+
+/* Error text */
+.error-text {
+    color: red;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+/* No orders text */
+.no-orders {
+    text-align: center;
+    font-style: italic;
+    margin-top: 30px;
+    color: #666;
+}
+
+/* Mobile responsive */
+@media screen and (max-width: 768px) {
+    .orders-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+    </style>
+</head>
+<body>
+
+<div class="dashboard-container">
+
+    <h1 class="page-title">My Orders</h1>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    {% if order_items %}
+    <div class="orders-grid">
+        {% for item in order_items %}
+        <div class="order-card">
+
+            <!-- Product Image -->
+            <div class="order-image">
+{% if item.product.images.exists %}
+    <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}">
+{% else %}
+    <img src="{% static 'images/product-placeholder.svg' %}" alt="No Image">
+{% endif %}
+
+
+            </div>
+
+            <!-- Order Details -->
+            <div class="order-info">
+                <p><strong>Order ID:</strong> #{{ item.order.id }}</p>
+                <p><strong>Product:</strong> {{ item.product.name }}</p>
+                <p><strong>Buyer:</strong> {{ item.order.user.username|capfirst }}</p>
+                <p><strong>Quantity:</strong> {{ item.quantity }}</p>
+                <p><strong>Price:</strong> {{ item.product.price|floatformat:2 }} Tsh</p>
+                {% comment %} <p><strong>Total:</strong> {{ item.total_amount|floatformat:2 }} Tsh</p> {% endcomment %}
+                <p><strong>Ordered on:</strong> {{ item.order.created_at|date:"M d, Y H:i" }}</p>
+            </div>
+
+            <!-- Status & Actions -->
+            <div class="order-actions">
+                <p>
+                    <strong>Status:</strong>
+                    <span class="status-badge {{ item.status }}">{{ item.status|capfirst }}</span>
+                </p>
+
+                {% if item.pk %}
+                <form method="post" action="{% url 'bluesoko:update_order_item_status' item.pk %}" class="status-form">
+                    {% csrf_token %}
+                    <select name="status">
+                        <option value="pending" {% if item.status == "pending" %}selected{% endif %}>Pending</option>
+                        <option value="accepted" {% if item.status == "accepted" %}selected{% endif %}>Accept</option>
+                        <option value="rejected" {% if item.status == "rejected" %}selected{% endif %}>Reject</option>
+                        <option value="completed" {% if item.status == "completed" %}selected{% endif %}>Complete</option>
+                    </select>
+                    <button type="submit">Update</button>
+                </form>
+                {% endif %}
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    {% comment %} <a href="{% url 'bluesoko:view_order' item.order.id %}" class="btn-view">View Order</a> {% endcomment %}
+                    <a href="mailto:{{ item.order.user.email }}" class="btn-contact">Contact Buyer</a>
+                </div>
+            </div>
+
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+        <p class="no-orders">No orders yet.</p>
+    {% endif %}
+
+</div>
+
+</body>
+</html>

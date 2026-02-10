@@ -1,0 +1,75 @@
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Server Error</title>
+        <style>
+        /*  body {
+                font-family: Arial, sans-serif;
+                background: #f8d7da;
+                color: #842029;
+                text-align: center;
+                padding: 100px 20px;
+            }
+            h1 {
+                font-size: 120px;
+                margin-bottom: 20px;
+            }
+            h2 {
+                font-size: 36px;
+                margin-bottom: 10px;
+            }
+            p {
+                font-size: 18px;
+            }
+                */
+
+            .error-page {
+                text-align: center;
+                padding: 100px 20px;
+                color: #055160; /* dark cyan */
+            }
+
+            .error-page h1 {
+                font-size: 120px;
+                color: #0dcaf0; /* info blue */
+                margin-bottom: 20px;
+            }
+
+            .error-page h2 {
+                font-size: 36px;
+                margin-bottom: 10px;
+            }
+
+            .error-page p {
+                font-size: 18px;
+                margin-bottom: 30px;
+            }
+
+            .btn-home {
+                display: inline-block;
+                padding: 10px 20px;
+                background-color: #055160;
+                color: #fff;
+                border-radius: 8px;
+                text-decoration: none;
+                font-weight: bold;
+            }
+
+            .btn-home:hover {
+                background-color: #0dcaf0;
+            }
+        </style>
+    </head>
+    <body>
+    <div class="error-page">
+            <h1>500</h1>
+            <h2>Internal Server Error</h2>
+            <p>Something went wrong on our side. Please try again later.</p>
+            <p>We’re fixing it. Please contact the administrator.</p>
+            <a href="{% url 'bluesoko:home' %}" class="btn-home">Go Back Home</a>
+        </div>
+    </body>
+</html>
+

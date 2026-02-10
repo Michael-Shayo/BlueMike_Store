@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile_new.css' %}">
+{% endblock %}
+
+{% block content %}
+{% if user.is_authenticated %}
+
+<div class="profile-wrapper">
+
+  <!-- HEADER -->
+  <div class="profile-header">
+    <div class="avatar">
+      <img src="{% if profile.avatar %}{{ profile.avatar.url }}{% else %}{% static 'images/default-avatar.png' %}{% endif %}" alt="Avatar">
+    </div>
+    <h2>{{ user.username|capfirst }}</h2>
+    <span class="badge">{{ user.get_role_display }}</span>
+  </div>
+
+  <!-- ALERTS -->
+  {% for message in messages %}
+    <div class="alert {{ message.tags }}">{{ message }}</div>
+  {% endfor %}
+
+  <!-- PROFILE INFO -->
+  <div class="card">
+    <h3>Profile Information</h3>
+    <div class="info-grid">
+      <p><strong>Email:</strong> {{ user.email }}</p>
+      <p><strong>Phone:</strong> {{ user.phone|default:"—" }}</p>
+      <p><strong>Status:</strong> {{ user.get_status_display }}</p>
+      <p><strong>Address:</strong> {{ profile.address|default:"—" }}</p>
+    </div>
+  </div>
+
+  <!-- UPDATE PROFILE -->
+  <div class="card">
+    <h3>Update Profile</h3>
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <label>Profile Image</label>
+      <input type="file" name="avatar">
+
+      <label>Address</label>
+      <input type="text" name="address" value="{{ profile.address }}">
+
+      <button class="btn-primary">Save Changes</button>
+    </form>
+  </div>
+
+  <!-- SELLER ACTION -->
+  {% if user.is_seller %}
+  <div class="card">
+    <a href="{% if user_shop %}{% url 'bluesoko:seller_dashboard' %}{% else %}{% url 'bluesoko:apply_shop' %}{% endif %}"
+       class="btn-secondary">
+      {% if user_shop %}Seller Dashboard{% else %}Apply for Shop{% endif %}
+    </a>
+  </div>
+  {% endif %}
+
+  <!-- BUSINESS INFO -->
+  {% if seller_profile %}
+  <div class="card">
+    <h3>Business Information</h3>
+    <p><strong>Name:</strong> {{ seller_profile.business_name }}</p>
+    <p><strong>Email:</strong> {{ seller_profile.business_email }}</p>
+    <p><strong>Region:</strong> {{ seller_profile.get_region_display }}</p>
+  </div>
+  {% endif %}
+
+  <!-- SHOP MAP -->
+  {% if user_shop and user_shop.latitude and user_shop.longitude %}
+  <div class="card">
+    <h3>Shop Location</h3>
+
+    <iframe
+      src="https://www.google.com/maps?q={{ user_shop.latitude }},{{ user_shop.longitude }}&z=15&output=embed"
+      loading="lazy"
+      allowfullscreen>
+    </iframe>
+
+    <a class="map-link"
+       href="https://www.google.com/maps?q={{ user_shop.latitude }},{{ user_shop.longitude }}"
+       target="_blank">
+      Open {{ user_shop.name|capfirst }} in Google Maps
+    </a>
+     <a class="map-link" href="https://www.latlong.net/c/?lat={{ user_shop.latitude }}&long={{ user_shop.longitude }}"
+    target="_blank" class="map_name">{{ user_shop.name |capfirst }} location in latlong
+     </a>
+  </div>
+  {% endif %}
+
+</div>
+
+{% else %}
+<h2 class="center">Guest users have no profile</h2>
+{% endif %}
+{% endblock %}

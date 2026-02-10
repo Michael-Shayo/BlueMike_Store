@@ -1,0 +1,575 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="shortcut icon" href="{% static 'images/bluemike_logo.png' %}">
+    {% comment %} <link rel="stylesheet" href="{% static 'css/product_list_2design.css' %}"> {% endcomment %}
+    <style>
+                /* GLOBAL */
+        body { background:#fafafa; 
+        padding-bottom: 60px; /* adjust to footer height */
+        }
+        .shop-layout {
+        display:grid;
+        grid-template-columns:320px 1fr;
+        gap:24px;
+        padding:24px;
+        }
+        /* Navbar container */
+        .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #fafafa;
+        padding: 1px 20px;
+        color: #111;
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        }
+
+        /* Logo */
+        .navbar-left .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: #111;
+        }
+
+        .navbar-left .logo img {
+        height: 40px;
+        }
+
+
+        /* Profile dropdown */
+        .profile-dropdown {
+        position: relative;
+        }
+
+        .profile-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        }
+
+        .dropdown-menu {
+        position: absolute;
+        right: 0;
+        top: 110%;
+        background: white;
+        color: #333;
+        min-width: 140px;
+        border-radius: 6px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        display: none;
+        flex-direction: column;
+        }
+
+        .dropdown-menu a {
+        padding: 10px 15px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #333;
+        transition: background 0.2s;
+        }
+
+        .dropdown-menu a:hover {
+        background: #f1f1f1;
+        }
+        /* CENTER CART */
+        .navbar-center {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        }
+
+        .cart-link {
+        font-size: 20px;
+        text-decoration: none;
+        color: #0d6efd;
+        font-weight: 600;
+        }
+
+        .cart-count {
+        background: #0d6efd;
+        color: white;
+        font-size: 12px;
+        padding: 3px 7px;
+        border-radius: 12px;
+        margin-left: 4px;
+        }
+
+        /* MOBILE FILTER BAR */
+        .mobile-filter-bar {
+        display:none;
+        padding:12px;
+        background:#fff;
+        border-bottom:1px solid #e5e5e5;
+        }
+        .mobile-filter-bar button {
+        width:100%;
+        padding:10px;
+        border:1px solid #ddd;
+        background:#fff;
+        border-radius:6px;
+        }
+
+        /* FILTERS */
+        .filters {
+        background:#fff;
+        padding:20px;
+        border-radius:10px;
+        box-shadow:0 2px 8px rgba(0,0,0,.05);
+        height:fit-content;
+        position:sticky;
+        top:20px;
+        }
+        .reset-btn{
+        color: #ffffff;
+        text-decoration: none;
+        font-family: 'Lucida Sans', sans-serif;
+        font-size: larger;
+        background: blue;
+        padding: 5px 15px;
+        border-radius: 1rem;
+        }
+        .filter-header {
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        }
+        .filter-group {
+        margin-top:5px;
+        border-top:1px solid #eee;
+        padding-top:5px;
+        }
+        .price-row {
+        display:flex;
+        flex-direction: column;
+        gap:8px;
+        }
+        .price-row input {
+        flex:1;
+        padding:8px;
+        border:1px solid #ddd;
+        border-radius:6px;
+        }
+        .checkbox-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px 24px;
+        max-width: 400px;
+        }
+        .checkbox-list label {
+        display:block;
+        margin-bottom:8px;
+        font-size:14px;
+        }
+        .apply-btn {
+        width:100%;
+        margin-top:10px;
+        padding:10px;
+        border:1px solid #ddd;
+        background:#fff;
+        border-radius:6px;
+        cursor:pointer;
+        }
+        .apply-btn:hover {
+        border-color:#2563eb;
+        color:#2563eb;
+        }
+        .apply-btn.full { margin-top:20px; }
+
+        /* PRODUCTS */
+        .products-header {
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:20px;
+        }
+        .product-grid {
+        display:grid;
+        gap:24px;
+        grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+        }
+
+        /* CARD */
+        .product-card {
+        background:#fff;
+        border-radius:12px;
+        overflow:hidden;
+        box-shadow:0 2px 8px rgba(0,0,0,.08);
+        transition:.3s;
+        }
+        .product-card:hover {
+        transform:translateY(-4px);
+        box-shadow:0 8px 20px rgba(0,0,0,.12);
+        }
+
+        .product-image {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f3f4f6; 
+        position:relative;
+        aspect-ratio:1/1;
+        overflow:hidden;
+        border-radius: 16px;
+        }
+
+
+        
+        .product-img {
+        display:none;
+        width:100%;
+        height:100%;
+        object-fit:cover;
+        border-radius: 16px;
+        }
+        .product-img.active { display:block; }
+
+        .arrow {
+        position:absolute;
+        top:50%;
+        transform:translateY(-50%);
+        background:rgba(255,255,255,.9);
+        border:none;
+        padding:6px;
+        cursor:pointer;
+        }
+        .arrow.left { left:6px; }
+        .arrow.right { right:6px; }
+
+        /* INFO */
+        .product-info {
+        padding:14px;
+        }
+        .product-info h3 {
+        font-size:15px;
+        margin:0 0 6px;
+        }
+        .product-info a {
+        text-decoration:none;
+        color:#111;
+        }
+        .price {
+        font-weight:700;
+        margin:8px 0;
+        }
+        .shop a:hover{
+        color: #2563eb;
+        }
+
+
+        .category-badge {
+        display:inline-block;
+        background:#f3f4f6;
+        padding:4px 8px;
+        border-radius:999px;
+        font-size:12px;
+        }
+
+        /* EMPTY */
+        .empty-state {
+        text-align:center;
+        grid-column:1/-1;
+        }
+        .empty-state .emoji { font-size:3rem; }
+
+        /* MOBILE */
+        @media(max-width:900px){
+        .shop-layout { grid-template-columns:1fr; }
+        .filters {
+            display:none;
+            position:fixed;
+            inset:0;
+            z-index:40;
+            overflow:auto;
+        }
+        .filters.open { display:block; }
+        .mobile-filter-bar { display:block; }
+        }
+        .fixed-footer {
+        position: fixed;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        text-align: center;
+        padding: 0rem 0;
+        font-size: smaller;
+        background: #f8f9fa; /* same as bg-light */
+        border-top: 1px solid #dee2e6;
+        color: #746c6c;
+        }
+        .profile-btn .profile-avatar {
+            width: 40px;
+            height: 40px;
+            margin: 5px auto;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid #0d6efd;
+            box-shadow: 0 8px 20px rgba(13, 110, 253, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa; /* fallback for transparent images */
+
+        }
+
+        .profile-btn .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center; /* keeps face centered */
+            display: block;
+            image-rendering: auto;
+        }
+        .category-count {
+            color: #6c757d;
+            font-size: 13px;
+            margin-left: 6px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+      <div class="navbar-left">
+        <a href="{% url 'bluesoko:home' %}" class="logo">
+          <img src="{% static 'images/bluemike_logo.png' %}" alt="Blue Mike Logo">
+          <span>Blue Mike</span>
+        </a>
+
+      </div>
+      <!-- CENTER CART (SESSION BASED) -->
+      {% if cart_count > 0 %}
+        <div class="navbar-center">
+          <a href="{% url 'bluesoko:cart' %}" class="cart-link">
+            🛒<span class="cart-count">{{ cart_count }}</span>
+          </a>
+        </div>
+      {% endif %}
+
+      <div class="navbar-right">
+        <div class="profile-dropdown">
+          <button class="profile-btn">
+            {% comment %} <i class="fas fa-user-circle" style="color: gray; font-size: 50px;"></i><!-- Profile icon --> {% endcomment %}
+           <div class="profile-avatar">
+              {% if user.is_authenticated and user.profile.avatar %}
+                  <img src="{{ user.profile.avatar.url }}" alt="Avatar">
+              {% else %}
+                  <img src="{% static 'images/default-avatar.png' %}" alt="Default Avatar">
+              {% endif %}
+          </button>
+          <div class="dropdown-menu">
+            {% if user.is_authenticated %}
+            <a href="{% url 'main:profile' %}"><i class="fas fa-user"></i> Profile</a>
+            <a href="{% url 'main:logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            {% else %}
+            <a href="{% url 'main:login' %}"><i class="fas fa-sign-in-alt"></i>Login</a>
+            {% endif%}
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- MOBILE FILTER BUTTON -->
+    <div class="mobile-filter-bar">
+      <button id="openFilters">Filters</button>
+    </div>
+    
+    <div class="shop-layout">
+    
+      <!-- FILTER SIDEBAR -->
+      <aside class="filters" id="filtersPanel">
+        <form method="get">
+    
+          <div class="filter-header">
+            <h3>Filters</h3>
+            <a href="{% url 'bluesoko:product_list' %}" class="reset-btn">Reset</a>
+          </div>
+    
+          <!-- PRICE -->
+          <div class="filter-group">
+            <h4>Price (TZS)</h4>
+            <div class="price-row">
+              <input type="number" name="min_price" placeholder="Min"
+                    value="{{ min_price }}">
+              <input type="number" name="max_price" placeholder="Max"
+                    value="{{ max_price }}">
+            </div>
+            <button type="submit" class="apply-btn">Apply Price</button>
+          </div>
+    
+          <!-- CATEGORY -->
+          <div class="filter-group">
+            <h4>Categories</h4>
+            <div class="checkbox-list">
+              {% for cat in categories %}
+                <label>
+                  <input type="checkbox" name="category"
+                        value="{{ cat.slug }}"
+                        {% if cat.slug in selected_categories %}checked{% endif %}>
+                  {{ cat.name }}
+                  <span class="category-count">({{ cat.product_count }})</span>
+                </label>
+              {% endfor %}
+            </div>
+          </div>
+    
+          <button type="submit" class="apply-btn full">Apply Filters</button>
+        </form>
+      </aside>
+    
+      <!-- PRODUCTS -->
+      <main class="products-section">
+        <div class="products-header">
+          <h2>Good Products</h2>
+          <p>Showing {{ products.count }} items</p>
+        </div>
+    
+        <div class="product-grid">
+          {% for product in products %}
+              <div class="product-card"
+                    role="link"
+                    tabindex="0"
+                    onclick="window.location.href='{% url 'bluesoko:product_detail' product.slug %}'"
+                    onkeydown="if(event.key==='Enter') this.click();">
+                <div class="product-image skeleton">
+                  {% if product.images.exists %}
+                    {% if product.images.count > 1 %}
+                      <button class="arrow left"
+                              onclick="event.stopPropagation(); event.preventDefault(); prevImage('{{ product.id }}')">&#10094;</button>
+                    {% endif %}
+          
+                    {% for img in product.images.all %}
+                      <img src="{{ img.image.url }}"
+                          class="product-img product-{{ product.id }} {% if forloop.first %}active{% endif %}"
+                          onload="removeSkeleton(this)"
+                          alt="{{ product.name }}">
+                    {% endfor %}
+          
+                    {% if product.images.count > 1 %}
+                      <button class="arrow right"
+                              onclick="event.stopPropagation(); event.preventDefault(); nextImage('{{ product.id }}')">&#10095;</button>
+                    {% endif %}
+                  {% else %}
+                    <img src="{% static 'images/product-placeholder.svg' %}">
+                  {% endif %}
+
+                </div>
+                <div class="product-info">
+                  <h3>
+                    <a href="{% url 'bluesoko:product_detail' product.slug %}" onclick="event.stopPropagation();">
+                      {{ product.name|capfirst  }}
+                    </a>
+                  </h3>
+                  <hr>
+                  {% comment %} <div class="rating">
+                    {% for i in "12345" %}
+                      {% if forloop.counter <= product.rating %}
+                        <span class="star filled">★</span>
+                      {% else %}
+                        <span class="star">☆</span>
+                      {% endif %}
+                    {% endfor %}
+                  </div> {% endcomment %}
+        
+                  <p class="price">{{ product.price|floatformat:0 }} TZS</p>
+        
+                  <p class="shop">
+                    Shop:
+                    <a href="{% url 'bluesoko:shop_detail' product.shop.slug %}" onclick="event.stopPropagation();">
+                      {{ product.shop.name|capfirst  }}
+                    </a>
+                  </p>
+        
+                  <span class="category-badge">
+                    {{ product.category.name }}
+                  </span>
+                </div>
+        
+              </div>
+          
+          {% empty %}
+            <div class="empty-state">
+              <div class="emoji">😔</div>
+              <h3>No items found</h3>
+              <p>Try changing price or category</p>
+            </div>
+          {% endfor %}
+    
+        </div>
+      </main>
+    
+    </div>
+    
+    <!-- IMAGE SLIDER SCRIPT -->
+    <script>
+    const imageIndex = {};
+    
+    function showImage(id, index) {
+      const images = document.querySelectorAll('.product-' + id);
+      images.forEach(img => img.classList.remove('active'));
+      images[index].classList.add('active');
+      imageIndex[id] = index;
+    }
+    
+    function nextImage(id) {
+      const imgs = document.querySelectorAll('.product-' + id);
+      let i = imageIndex[id] ?? 0;
+      showImage(id, (i + 1) % imgs.length);
+    }
+    
+    function prevImage(id) {
+      const imgs = document.querySelectorAll('.product-' + id);
+      let i = imageIndex[id] ?? 0;
+      showImage(id, (i - 1 + imgs.length) % imgs.length);
+    }
+    
+    function removeSkeleton(img) {
+      img.closest('.skeleton')?.classList.add('loaded');
+    }
+    
+    /* MOBILE FILTER TOGGLE */
+    const btn = document.getElementById("openFilters");
+    const panel = document.getElementById("filtersPanel");
+    btn?.addEventListener("click", () => {
+      panel.classList.toggle("open");
+    });
+
+    const profileBtn = document.querySelector('.profile-btn');
+const dropdownMenu = document.querySelector('.dropdown-menu');
+
+profileBtn.addEventListener('click', (e) => {
+  dropdownMenu.style.display = dropdownMenu.style.display === 'flex' ? 'none' : 'flex';
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+  if (!profileBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+    dropdownMenu.style.display = 'none';
+  }
+});
+    </script>
+    
+</body>
+<footer class="fixed-footer">
+  <p class="mb-0">&copy; {% now "Y" %} BlueSoko — All rights reserved</p>
+</footer>
+</html>
+

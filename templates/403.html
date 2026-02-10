@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Access Denied{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/404.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="error-page">
+        <h1>403</h1>
+        <h2>Access Denied</h2>
+        <p>You do not have permission to access this page.</p>
+        <a href="{% url 'bluesoko:home' %}" class="btn-home">Go Back Home</a>
+    </div>
+{% endblock %}
