@@ -1,0 +1,94 @@
+.shop-toolbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.shop-toolbar input,
+.shop-toolbar select {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+input{
+  width: 80%;
+}
+
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+  justify-content: center;
+  margin: 3rem;
+}
+
+.shop-card {
+  cursor: pointer;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  padding: 18px;
+  background: white;
+  transition: all 0.2s ease;
+  background: linear-gradient(to bottom, #3A0CA3, #050505);
+  color: #fff ;
+}
+
+.shop-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+.rating {
+  color: #f4b400;
+  font-size: 14px;
+}
+form{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+form *{
+    width: 80%;
+}
+form button{
+    background: royalblue;
+    border: none;
+    border-radius: 0.5rem;
+    width: fit-content;
+    padding:  0.25rem 1.5rem ;
+}
+.rating-view{
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 25px;
+}
+.top-rated-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #f4b400, #ff9900);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-bottom: 8px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+h1{
+  text-align: center;
+}
+.shop-grid p{
+  text-align: center;
+  /* margin: 0rem 0rem 5rem 0rem; */
+}
+  .shop-footer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #6c757d;
+    margin-top: 1rem;
+  }
+  .shop-grid .no_shop{
+    padding-left: 10rem;
+    color: royalblue;
+  }

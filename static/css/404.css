@@ -1,0 +1,35 @@
+.error-page {
+    text-align: center;
+    padding: 100px 20px;
+    color: #084298; /* royal blue */
+}
+
+.error-page h1 {
+    font-size: 120px;
+    color: #008080; /* ocean blue */
+    margin-bottom: 20px;
+}
+
+.error-page h2 {
+    font-size: 36px;
+    margin-bottom: 10px;
+}
+
+.error-page p {
+    font-size: 18px;
+    margin-bottom: 30px;
+}
+
+.btn-home {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #084298;
+    color: #fff;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.btn-home:hover {
+    background-color: #0d6efd;
+}

@@ -1,0 +1,130 @@
+/* Navbar container */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fafafa;; /*Blue Mike color*/
+  padding: 1px 20px;
+  color: #111;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+/* Logo */
+.navbar-left .logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: #111;
+}
+
+.navbar-left .logo img {
+      width: 40px;
+    height: 40px;
+}
+
+
+/* Profile dropdown */
+.profile-dropdown {
+  position: relative;
+}
+
+.profile-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: 110%;
+  background: white;
+  color: #333;
+  min-width: 140px;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  display: none;
+  flex-direction: column;
+}
+
+.dropdown-menu a {
+  padding: 10px 15px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #333;
+  transition: background 0.2s;
+}
+
+.dropdown-menu a:hover {
+  background: #f1f1f1;
+}
+/* CENTER CART */
+.navbar-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.cart-link {
+  font-size: 20px;
+  text-decoration: none;
+  color: #0d6efd;
+  font-weight: 600;
+}
+
+.cart-count {
+  background: #0d6efd;
+  color: white;
+  font-size: 12px;
+  padding: 3px 7px;
+  border-radius: 12px;
+  margin-left: 4px;
+}
+
+
+/* Avatar */
+.profile-btn .profile-avatar {
+    width: 40px;
+    height: 40px;
+    margin: 5px auto;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid #0d6efd;
+    box-shadow: 0 8px 20px rgba(13, 110, 253, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa; /* fallback for transparent images */
+
+}
+
+.profile-btn .profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center; /* keeps face centered */
+    display: block;
+}
+.cart-badge {
+  position: relative;
+  font-size: 16px;
+  color: #0d6efd;
+  font-weight: bold;
+  margin-right: 15px;
+}
+
+.cart-badge::after {
+  content: "";
+  display: inline-block;
+  width: 0; height: 0;
+}
+
+

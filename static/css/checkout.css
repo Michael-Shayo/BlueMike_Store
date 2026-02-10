@@ -1,0 +1,106 @@
+/* Page container */
+.checkout-container {
+  max-width: 700px;
+  margin: 60px auto;
+  padding: 0 15px;
+}
+
+/* Page title */
+.checkout-title {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+/* Card */
+.checkout-card {
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 25px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+/* Section title */
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+/* Form */
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #a6a6a6;
+  border-radius: 4px;
+  font-size: 15px;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #f0c14b;
+  box-shadow: 0 0 0 2px rgba(240,193,75,0.3);
+}
+
+/* Place order button (Amazon-style) */
+.place-order-btn {
+  width: 100%;
+  background: #ffd814;
+  border: 1px solid #fcd200;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.place-order-btn:hover {
+  background: #f7ca00;
+}
+
+/* Footer links */
+.checkout-footer {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.checkout-footer a {
+  text-decoration: none;
+  font-weight: 600;
+  color: #007185;
+}
+
+.checkout-footer a:hover {
+  text-decoration: underline;
+}
+
+/* Messages */
+.alert-success {
+  background: #d4edda;
+  color: #155724;
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Small note */
+.checkout-note {
+  font-size: 13px;
+  color: #555;
+  text-align: center;
+  margin-top: 15px;
+}
